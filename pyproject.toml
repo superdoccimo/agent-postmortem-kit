@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-postmortem-kit"
+version = "0.1.0"
+description = "Local-first postmortem reports for AI coding-agent sessions."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "superdoccimo" }]
+license = { text = "MIT" }
+keywords = ["ai-agent", "postmortem", "audit", "logs", "local-first"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.scripts]
+agent-postmortem = "agent_postmortem_kit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
