@@ -6,7 +6,11 @@ from pathlib import Path
 
 from agent_postmortem_kit.detectors import analyze_events
 from agent_postmortem_kit.parser import parse_paths
-from agent_postmortem_kit.report import write_html_report, write_json_report
+from agent_postmortem_kit.report import (
+    write_html_report,
+    write_json_report,
+    write_skill_candidates_report,
+)
 
 SAMPLE_LOG = Path("examples/sample-agent-session.jsonl")
 
@@ -71,3 +75,20 @@ def test_sample_report_writes_html_and_json() -> None:
     assert "Findings" in html
     assert data["stats"]["events"] == 9
     assert len(data["findings"]) >= 5
+
+
+def test_sample_report_writes_skill_candidates_markdown() -> None:
+    report = _sample_report()
+    reports_root = Path("reports").resolve()
+    reports_root.mkdir(exist_ok=True)
+
+    with tempfile.TemporaryDirectory(prefix="pytest-skills-", dir=reports_root) as tmp:
+        skill_path = Path(tmp) / "skill-candidates.md"
+        write_skill_candidates_report(report, skill_path)
+        markdown = skill_path.read_text(encoding="utf-8")
+
+    assert "# Skill Candidate Export" in markdown
+    assert "Create a troubleshooting skill for recurring command or test failures." in markdown
+    assert "Failure pattern: Repeated failure pattern" in markdown
+    assert "Next-run rule" in markdown
+    assert "python -m pytest" in markdown

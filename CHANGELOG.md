@@ -10,6 +10,7 @@ Initial public demo scaffold for Agent Postmortem Kit.
 - Heuristic detectors for repeated failures, dangerous commands, secret exposure risk, evidence gaps, unfinished work, and human approval signals.
 - Static HTML report generation.
 - Structured JSON report generation.
+- Markdown skill-candidate export with failure pattern, evidence, next-run rule, and verification command sections.
 - Sample AI-agent session log for safe local demos.
 - Pytest and unittest smoke coverage.
 - Safety-oriented `.gitignore` rules for generated reports, real logs, env files, and key material.

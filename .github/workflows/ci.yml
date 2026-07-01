@@ -35,9 +35,10 @@ jobs:
 
       - name: Check README Quick Start command
         run: |
-          agent-postmortem analyze examples/sample-agent-session.jsonl --out reports/quickstart.html --json reports/quickstart.json
+          agent-postmortem analyze examples/sample-agent-session.jsonl --out reports/quickstart.html --json reports/quickstart.json --skill-out reports/skill-candidates.md
           test -s reports/quickstart.html
           test -s reports/quickstart.json
+          test -s reports/skill-candidates.md
           python -m agent_postmortem_kit analyze examples/sample-agent-session.jsonl --out reports/sample.html --json reports/sample.json
           test -s reports/sample.html
           test -s reports/sample.json

@@ -6,7 +6,11 @@ from pathlib import Path
 
 from .detectors import analyze_events
 from .parser import parse_paths
-from .report import write_html_report, write_json_report
+from .report import (
+    write_html_report,
+    write_json_report,
+    write_skill_candidates_report,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -38,6 +42,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--json",
         default=None,
         help="Optional path for the structured JSON report",
+    )
+    analyze.add_argument(
+        "--skill-out",
+        default=None,
+        help="Optional path for Markdown skill candidates",
     )
     analyze.add_argument(
         "--title",
@@ -81,7 +90,12 @@ def run_analyze(args: argparse.Namespace) -> int:
         json_path = Path(args.json).expanduser().resolve()
         write_json_report(report, json_path)
 
-    _print_summary(report, html_path, json_path)
+    skill_path = None
+    if args.skill_out:
+        skill_path = Path(args.skill_out).expanduser().resolve()
+        write_skill_candidates_report(report, skill_path)
+
+    _print_summary(report, html_path, json_path, skill_path)
 
     if args.fail_on_critical and any(
         finding.severity == "critical" for finding in report.findings
@@ -90,10 +104,17 @@ def run_analyze(args: argparse.Namespace) -> int:
     return 0
 
 
-def _print_summary(report, html_path: Path, json_path: Path | None) -> None:
+def _print_summary(
+    report,
+    html_path: Path,
+    json_path: Path | None,
+    skill_path: Path | None,
+) -> None:
     print(f"Report: {html_path}")
     if json_path:
         print(f"JSON:   {json_path}")
+    if skill_path:
+        print(f"Skills: {skill_path}")
     print(
         "Scanned "
         f"{report.stats.files_scanned} files, "

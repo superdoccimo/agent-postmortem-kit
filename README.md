@@ -130,10 +130,12 @@ Agent Postmortem Kit should focus on postmortem findings: failure patterns, risk
 ## Current CLI
 
 ```text
-agent-postmortem analyze <paths...> [--out report.html] [--json report.json] [--goal "..."] [--title "..."]
+agent-postmortem analyze <paths...> [--out report.html] [--json report.json] [--skill-out skill-candidates.md] [--goal "..."] [--title "..."]
 ```
 
 Paths can be files or directories. Directories are scanned for `.jsonl`, `.json`, `.log`, `.txt`, and `.md` files.
+
+Use `--skill-out` to write a local Markdown draft of skill candidates derived from the findings.
 
 ## Roadmap
 
@@ -143,4 +145,3 @@ Paths can be files or directories. Directories are scanned for `.jsonl`, `.json`
 - Add optional Oracle-ready bundle generation for second-opinion reviews when an agent is stuck.
 - Add richer timeline and repeated-failure clustering.
 - Add policy packs for approval gates and dangerous operations.
-- Add skill-candidate export as Markdown.

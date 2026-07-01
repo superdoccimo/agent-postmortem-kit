@@ -20,6 +20,65 @@ def write_html_report(report: PostmortemReport, path: Path) -> None:
     path.write_text(render_html(report), encoding="utf-8")
 
 
+def write_skill_candidates_report(report: PostmortemReport, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_skill_candidates_markdown(report), encoding="utf-8")
+
+
+def render_skill_candidates_markdown(report: PostmortemReport) -> str:
+    candidates = _skill_candidate_groups(report.findings)
+    lines = [
+        "# Skill Candidate Export",
+        "",
+        f"Source report: {report.title}",
+        "",
+        "This file is a local draft for turning postmortem findings into next-run rules. Review it before copying any rule into an agent skill or project instruction.",
+        "",
+        "## Goal",
+        "",
+        report.goal,
+        "",
+        "## Summary",
+        "",
+        f"- Files scanned: {report.stats.files_scanned}",
+        f"- Events parsed: {report.stats.events}",
+        f"- Shell commands: {report.stats.shell_commands}",
+        f"- Error-like events: {report.stats.error_like_events}",
+        f"- Candidate count: {len(candidates)}",
+        "",
+    ]
+
+    if not candidates:
+        lines.extend(
+            [
+                "## Candidates",
+                "",
+                "No skill candidates were detected.",
+                "",
+            ]
+        )
+        return "\n".join(lines)
+
+    lines.extend(["## Candidates", ""])
+    for index, (candidate, findings) in enumerate(candidates.items(), start=1):
+        lines.extend(_skill_candidate_block(index, candidate, findings))
+
+    lines.extend(
+        [
+            "## Verification Commands",
+            "",
+            "Run these after converting a candidate into a real skill or project rule:",
+            "",
+            "```powershell",
+            "python -m pytest",
+            "python -m agent_postmortem_kit analyze <log-path> --out reports/postmortem.html --json reports/postmortem.json --skill-out reports/skill-candidates.md",
+            "```",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def render_html(report: PostmortemReport) -> str:
     stats = report.stats
     return f"""<!doctype html>
@@ -226,3 +285,86 @@ def _evidence_list(items: list[Evidence]) -> str:
 
 def _e(value: object) -> str:
     return html.escape(str(value), quote=True)
+
+
+def _skill_candidate_groups(findings: list[Finding]) -> dict[str, list[Finding]]:
+    groups: dict[str, list[Finding]] = {}
+    for finding in findings:
+        if not finding.skill_candidate:
+            continue
+        groups.setdefault(finding.skill_candidate, []).append(finding)
+    return groups
+
+
+def _skill_candidate_block(
+    index: int, candidate: str, findings: list[Finding]
+) -> list[str]:
+    severities = ", ".join(_unique(finding.severity for finding in findings))
+    kinds = ", ".join(_unique(finding.kind for finding in findings))
+    patterns = _unique(finding.title for finding in findings)
+    summaries = _unique(finding.summary for finding in findings)
+    rules = _unique(
+        finding.recommendation
+        or "Add a concrete rule that prevents this failure pattern from repeating."
+        for finding in findings
+    )
+    evidence = [
+        item
+        for finding in findings
+        for item in finding.evidence
+    ][:5]
+
+    lines = [
+        f"### {index}. {candidate}",
+        "",
+        f"- Severity: `{severities}`",
+        f"- Finding kind: `{kinds}`",
+        "",
+        "#### Failure pattern",
+        "",
+    ]
+    lines.extend(f"- Failure pattern: {pattern}" for pattern in patterns)
+    lines.extend(["", "#### Finding summary", ""])
+    lines.extend(f"- {summary}" for summary in summaries)
+    lines.extend([
+        "",
+        "#### Evidence",
+        "",
+    ])
+
+    if evidence:
+        for item in evidence:
+            location = item.source
+            if item.line is not None:
+                location = f"{location}:{item.line}"
+            lines.append(f"- `{location}`: {item.excerpt}")
+    else:
+        lines.append("- No evidence captured.")
+
+    lines.extend(
+        [
+            "",
+            "#### Next-run rule",
+            "",
+            *[f"- {rule}" for rule in rules],
+            "",
+            "#### Verification command",
+            "",
+            "```powershell",
+            "python -m pytest",
+            "```",
+            "",
+        ]
+    )
+    return lines
+
+
+def _unique(items) -> list[str]:
+    values: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        values.append(item)
+    return values
