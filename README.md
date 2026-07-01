@@ -88,6 +88,10 @@ This writes:
 
 The generated report should flag a forced Git reset, a redacted secret-like token, a repeated test failure, verification gaps, unfinished work, human approval needs, and skill candidates. `reports/` and `logs/` are ignored by Git so local reports and real agent logs are not committed by accident.
 
+The screenshot below is generated only from the synthetic sample log.
+
+![Sample postmortem report](docs/assets/sample-report.png)
+
 Do not commit real logs to a public repository. Keep real sessions under ignored directories such as `logs/`, `private-logs/`, or `real-logs/`, and review generated reports before sharing them. Secret redaction is heuristic and incomplete; a human must inspect reports before publication.
 
 For GitHub or X, treat the sample HTML report screenshot as the main demo artifact. The message should be "working v0.1 demo", not "finished agent observability platform".

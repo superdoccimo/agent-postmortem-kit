@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run tests
+        run: python -m pytest
+
+      - name: Check README Quick Start command
+        run: |
+          agent-postmortem analyze examples/sample-agent-session.jsonl --out reports/quickstart.html --json reports/quickstart.json
+          test -s reports/quickstart.html
+          test -s reports/quickstart.json
+          python -m agent_postmortem_kit analyze examples/sample-agent-session.jsonl --out reports/sample.html --json reports/sample.json
+          test -s reports/sample.html
+          test -s reports/sample.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("reports/sample.json").read_text(encoding="utf-8"))
+          kinds = {finding["kind"] for finding in report["findings"]}
+          required = {
+              "dangerous_command",
+              "secret_exposure",
+              "repeated_failure",
+              "evidence_gap",
+              "unfinished_work",
+          }
+          missing = required - kinds
+          if missing:
+              raise SystemExit(f"Missing expected findings: {sorted(missing)}")
+          PY

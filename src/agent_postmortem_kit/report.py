@@ -77,7 +77,7 @@ def render_html(report: PostmortemReport) -> str:
       border: 1px solid var(--line);
       border-radius: 8px;
     }}
-    .metric {{ padding: 14px; }}
+    .metric {{ padding: 14px; color: var(--ink); }}
     .metric strong {{ display: block; font-size: 24px; line-height: 1; }}
     .metric span {{ color: var(--muted); font-size: 12px; }}
     .grid {{
