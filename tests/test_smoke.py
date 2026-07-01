@@ -6,7 +6,11 @@ from pathlib import Path
 
 from agent_postmortem_kit.detectors import analyze_events
 from agent_postmortem_kit.parser import parse_paths
-from agent_postmortem_kit.report import write_html_report, write_json_report
+from agent_postmortem_kit.report import (
+    write_html_report,
+    write_json_report,
+    write_skill_candidates_report,
+)
 
 
 class SmokeTest(unittest.TestCase):
@@ -29,12 +33,19 @@ class SmokeTest(unittest.TestCase):
             tmp_path = Path(tmp)
             html_path = tmp_path / "report.html"
             json_path = tmp_path / "report.json"
+            skill_path = tmp_path / "skill-candidates.md"
             write_html_report(report, html_path)
             write_json_report(report, json_path)
+            write_skill_candidates_report(report, skill_path)
             html = html_path.read_text(encoding="utf-8")
+            skills = skill_path.read_text(encoding="utf-8")
             self.assertIn("Smoke Test", html)
             self.assertIn("Findings", html)
             self.assertIn("dangerous_command", json_path.read_text(encoding="utf-8"))
+            self.assertIn("Skill Candidate Export", skills)
+            self.assertIn("Failure pattern", skills)
+            self.assertIn("Next-run rule", skills)
+            self.assertIn("Verification command", skills)
 
 
 if __name__ == "__main__":

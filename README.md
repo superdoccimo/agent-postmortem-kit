@@ -2,7 +2,7 @@
 
 Local-first postmortem reports for AI coding-agent sessions.
 
-This repository is an early v0.1 working demo, not a finished product. The current goal is to show the smallest useful loop:
+This repository is an early v0.1 technical preview, not a finished product. The current goal is to validate the smallest useful loop:
 
 ```text
 sample agent log -> postmortem analysis -> static HTML + JSON report
@@ -22,7 +22,7 @@ This is not an agent dashboard. The v0 goal is narrower: read logs, extract fail
 
 ## Status
 
-Early v0.1 scaffold and demo. The CLI currently supports generic JSONL and text logs with heuristic detectors. OpenClaw, Hermes, Codex, Claude Code, and AgentTrace-specific adapters are not complete yet.
+Early v0.1 technical preview. The CLI currently supports generic JSONL and text logs with heuristic detectors. OpenClaw, Hermes, Codex, Claude Code, and AgentTrace-specific adapters are not complete yet.
 
 The best way to show this version is the generated sample HTML report, not a claim that the tool is production-ready.
 
@@ -62,7 +62,7 @@ These findings are review signals. They are not proof that the agent behaved inc
 
 ## What It Cannot Do Yet
 
-This v0.1 demo cannot yet:
+This v0.1 technical preview cannot yet:
 
 - parse OpenClaw, Hermes, Codex, Claude Code, or AgentTrace formats with dedicated adapters
 - guarantee complete secret redaction
@@ -94,7 +94,7 @@ The screenshot below is generated only from the synthetic sample log.
 
 Do not commit real logs to a public repository. Keep real sessions under ignored directories such as `logs/`, `private-logs/`, or `real-logs/`, and review generated reports before sharing them. Secret redaction is heuristic and incomplete; a human must inspect reports before publication.
 
-For GitHub or X, treat the sample HTML report screenshot as the main demo artifact. The message should be "working v0.1 demo", not "finished agent observability platform".
+For GitHub or X, treat the sample HTML report screenshot as the main artifact. The message should be "v0.1 technical preview", not "finished agent observability platform".
 
 ## Output Shape
 
