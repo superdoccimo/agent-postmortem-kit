@@ -25,7 +25,12 @@ SECRET_RE = re.compile(r"\[REDACTED_SECRET\]")
 DANGEROUS_COMMANDS: list[tuple[str, re.Pattern[str], str]] = [
     (
         "destructive recursive delete",
-        re.compile(r"(?i)\brm\s+-[^\n]*r[^\n]*f\b|Remove-Item\b[^\n]*-Recurse"),
+        re.compile(
+            r"(?i)\brm\b"
+            r"(?=[^\n]*(?:\s)-(?:[a-z]*r[a-z]*|recursive)(?:\s|$))"
+            r"(?=[^\n]*(?:\s)-(?:[a-z]*f[a-z]*|force)(?:\s|$))"
+            r"[^\n]*|Remove-Item\b[^\n]*-Recurse"
+        ),
         "Require an explicit approval gate and path boundary check before recursive deletes.",
     ),
     (
